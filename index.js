@@ -2,14 +2,12 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { Telegraf } from "telegraf";
-import db from "./lib/db.js";
 import { formatListResponse, formatRowResponse, getRepoInfo } from "./lib/utils.js";
+import { Package } from "./lib/schemas/package-schema.js";
+import { Following } from "./lib/schemas/following-schema.js";
 
 dotenv.config();
 const port = process.env.PORT || 9999;
-
-const migrationsDir = 'migrations';
-
 
 const app = express();
 app.use(cors());
@@ -41,52 +39,42 @@ bot.help((ctx) => {
   `);
 });
 
-bot.command("list", (ctx) => {
-  db.all("SELECT * FROM following WHERE username = ?", [ctx.message.from.username], (err, rows) => {
-    if (err) {
-      ctx.reply("Error: " + err.message);
-    } else {
-      if (rows.length === 0) {
-        ctx.reply("You are not following any packages");
-      } else {
-        ctx.reply(`List of following packages:
-          ${formatListResponse(rows)}
-        `);
-      }
+bot.command("list", async (ctx) => {
+  const following = await Following.find({ username: ctx.message.from.username });
+  const packages = await Package.find({ name: { $in: following.map(item => item.packageName) } });
+
+  ctx.reply(`List of following packages:
+    ${packages.map(formatListResponse).join("\n")}
+  `);
+});
+
+bot.command("add", async (ctx) => {
+  const packageName = ctx.message.text.split(" ")[1];
+  await Following.create({ username: ctx.message.from.username, packageName });
+  ctx.reply(`Package ${packageName} added to following`);
+});
+
+bot.command("remove", async (ctx) => {
+  const packageName = ctx.message.text.split(" ")[1];
+  await Following.deleteOne({ username: ctx.message.from.username, packageName });
+  ctx.reply(`Package ${packageName} removed from following`);
+});
+
+bot.command("tracking", async (ctx) => {
+  const following = await Following.find({ username: ctx.message.from.username });
+  const promises = following.map(async (row) => {
+    const { version, description } = await getRepoInfo(row.packageName);
+    await Package.updateOne({ name: row.packageName }, { version, description });
+    return {
+      name: row.packageName,
+      version,
+      description
     }
   });
-});
-
-bot.command("add", (ctx) => {
-  db.exec("INSERT INTO following (username, package_name) VALUES (?, ?)", [ctx.message.from.username, ctx.message.text]);
-  ctx.reply(`Package ${ctx.message.text} added to following`);
-});
-
-bot.command("remove", (ctx) => {
-  db.exec("DELETE FROM following WHERE username = ? AND package_name = ?", [ctx.message.from.username, ctx.message.text]);
-  ctx.reply(`Package ${ctx.message.text} removed from following`);
-});
-
-bot.command("tracking", (ctx) => {
-  db.all("SELECT * FROM following WHERE username = ?", [ctx.message.from.username], (err, rows) => {
-    if (err) {
-      ctx.reply("Error: " + err.message);
-    } else {
-      const promises = rows.map(async (row) => {
-        const { version, description } = await getRepoInfo(row.package_name);
-        await db.exec("UPDATE packages SET version = ?, description = ? WHERE name = ?", [version, description, row.package_name]);
-        return {
-          name: row.package_name,
-          version,
-          description
-        }
-      });
-      Promise.all(promises).then((results) => {
-        ctx.reply(`Tracking all packages:
-          ${results.map(formatRowResponse).join("\n")}
-        `);
-      });
-    }
+  Promise.all(promises).then((results) => {
+    ctx.reply(`Tracking all packages:
+      ${results.map(formatRowResponse).join("\n")}
+    `);
   });
 });
 
