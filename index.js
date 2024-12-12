@@ -14,11 +14,11 @@ const port = process.env.PORT || 9999;
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 const listCommands = [
-  { command: "/help", description: "See the list of commands" },
-  { command: "/list", description: "See the list of following packages" },
-  { command: "/add", description: "Add a package" },
-  { command: "/remove", description: "Remove a package" },
-  { command: "/tracking", description: "Tracking all packages" },
+  { command: "help", description: "See the list of commands" },
+  { command: "list", description: "See the list of following packages" },
+  { command: "add", description: "Add a package" },
+  { command: "remove", description: "Remove a package" },
+  { command: "tracking", description: "Tracking all packages" },
 ];
 
 bot.start((ctx) => {
