@@ -53,12 +53,16 @@ bot.command("list", async (ctx) => {
 
 bot.command("add", async (ctx) => {
   const packageName = ctx.message.text.split(" ")[1];
-  await Following.create({ username: ctx.message.from.username, packageName });
   const pkg = await Package.findOne({ name: packageName });
   if (!pkg) {
     const { version, description } = await getRepoInfo(packageName);
+    if (version === 'unknown') {
+      ctx.reply(`Package ${packageName} not found`);
+      return;
+    }
     await Package.create({ name: packageName, version, description });
   }
+  await Following.create({ username: ctx.message.from.username, packageName });
   ctx.reply(`Package ${packageName} added to following`);
 });
 
