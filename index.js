@@ -11,10 +11,48 @@ app.use(express.json());
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
-bot.on("message", (ctx) => {
-  ctx.reply(
-    `${ctx.message.from.username} đã gửi: ${ctx.message.text} in ${ctx.message.chat.id} in ${ctx.message.chat.type}`
-  );
+bot.start((ctx) => {
+  ctx.reply(`
+    Hello! 👋). I'm a bot that can help you track open source version.
+    You can send me a message with the format:
+    <code>
+    /help to see the list of commands
+    /list to see the list of following packages
+    /add to add a package
+    /remove to remove a package
+    /tracking to tracking all packages
+    </code>
+    `);
+});
+
+bot.help((ctx) => {
+  ctx.reply(`
+  I can help you with tracking open source version.
+  You can send me a message with the format:
+  <code>
+  /help
+  /list
+  /add
+  /remove
+  /tracking
+  </code>
+  `);
+});
+
+bot.command("list", (ctx) => {
+  ctx.reply("List of packages");
+});
+
+bot.command("add", (ctx) => {
+  ctx.reply("Add a package");
+});
+
+bot.command("remove", (ctx) => {
+  ctx.reply("Remove a package");
+});
+
+bot.command("tracking", (ctx) => {
+  ctx.reply("Tracking all packages");
 });
 
 bot.startWebhook("/TrackingOpenSourceVersionBot", null, port);
