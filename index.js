@@ -46,9 +46,7 @@ bot.command("list", async (ctx) => {
     return;
   }
 
-  ctx.reply(`List of following packages:
-    ${formatListResponse(packages)}
-  `);
+  ctx.reply(`List of following packages: \n\n${formatListResponse(packages)}`);
 });
 
 bot.command("add", async (ctx) => {
