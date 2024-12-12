@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { Telegraf } from "telegraf";
 import { formatListResponse, getRepoInfo } from "./lib/utils.js";
-import trackingVersion from "./api/crons/tracking-version.js";
+import trackingVersion from "./lib/tracking-version.js";
 import { Package } from "./lib/schemas/package-schema.js";
 import { Following } from "./lib/schemas/following-schema.js";
 import { connectDB } from "./lib/db.js";
@@ -62,13 +62,14 @@ bot.command("add", async (ctx) => {
 
   const hasPackage = await Package.findOne({ name: packageName });
   if (!hasPackage) {
+    // TODO: handle short description
     const { version, description } = await getRepoInfo(packageName);
     if (!version || version === 'unknown') {
       ctx.reply(`Package ${packageName} not found`);
       return;
     }
 
-    await Package.create({ name: packageName, version, description });
+    await Package.create({ name: packageName, version, description: "" });
   }
 
   await Following.create({ chatId, packageName });
@@ -96,9 +97,8 @@ bot.command("remove", async (ctx) => {
 });
 
 bot.command("tracking", async (ctx) => {
-  trackingVersion();
+  await trackingVersion();
   ctx.reply("Tracking all packages");
 });
 
 bot.startWebhook("/bot", null, port);
-
