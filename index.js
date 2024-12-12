@@ -74,11 +74,21 @@ bot.command("tracking", async (ctx) => {
   const following = await Following.find({ username: ctx.message.from.username });
   const promises = following.map(async (row) => {
     const { version, description } = await getRepoInfo(row.packageName);
-    await Package.updateOne({ name: row.packageName }, { version, description });
-    return {
-      name: row.packageName,
-      version,
-      description
+    if (version === 'unknown') {
+      return {
+        name: row.packageName,
+        version: 'unknown',
+        description: 'Error fetching release info',
+        status: 'Tracking failed'
+      }
+    }else {
+      await Package.updateOne({ name: row.packageName }, { version, description });
+      return {
+        name: row.packageName,
+        version,
+        description,
+        status: 'Tracking success'
+      }
     }
   });
   const results = await Promise.all(promises);
