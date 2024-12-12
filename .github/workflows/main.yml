@@ -2,7 +2,8 @@ name: Tracking Version
 
 on:
   schedule:
-    - cron: "*/1 * * * *"
+    - cron: "* * * * *"
+  workflow_dispatch:
 
 jobs:
   call-api:
