@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { Telegraf } from "telegraf";
-import { formatListResponse, formatRowResponse, getRepoInfo } from "./lib/utils.js";
+import { formatListResponse, formatRowsResponse, getRepoInfo } from "./lib/utils.js";
 import { Package } from "./lib/schemas/package-schema.js";
 import { Following } from "./lib/schemas/following-schema.js";
 import { connectDB } from "./lib/db.js";
@@ -81,11 +81,8 @@ bot.command("tracking", async (ctx) => {
       description
     }
   });
-  Promise.all(promises).then((results) => {
-    ctx.reply(`Tracking all packages:
-      ${results.map(formatRowResponse).join("\n")}
-    `);
-  });
+  const results = await Promise.all(promises);
+  ctx.reply(`Tracking all packages: \n\n${formatRowsResponse(results)}`);
 });
 
 bot.startWebhook("/bot", null, port);
