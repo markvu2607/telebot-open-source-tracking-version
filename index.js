@@ -3,9 +3,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { Telegraf } from "telegraf";
 import db from "./lib/db.js";
+import { formatListResponse, formatRowResponse, getRepoInfo } from "./lib/utils.js";
 
 dotenv.config();
 const port = process.env.PORT || 9999;
+
+const migrationsDir = 'migrations';
+
 
 const app = express();
 app.use(cors());
@@ -42,12 +46,15 @@ bot.command("list", (ctx) => {
     if (err) {
       ctx.reply("Error: " + err.message);
     } else {
+      if (rows.length === 0) {
+        ctx.reply("You are not following any packages");
+      } else {
         ctx.reply(`List of following packages:
           ${formatListResponse(rows)}
         `);
       }
     }
-  );
+  });
 });
 
 bot.command("add", (ctx) => {
@@ -61,7 +68,26 @@ bot.command("remove", (ctx) => {
 });
 
 bot.command("tracking", (ctx) => {
-  ctx.reply("Tracking all packages");
+  db.all("SELECT * FROM following WHERE username = ?", [ctx.message.from.username], (err, rows) => {
+    if (err) {
+      ctx.reply("Error: " + err.message);
+    } else {
+      const promises = rows.map(async (row) => {
+        const { version, description } = await getRepoInfo(row.package_name);
+        await db.exec("UPDATE packages SET version = ?, description = ? WHERE name = ?", [version, description, row.package_name]);
+        return {
+          name: row.package_name,
+          version,
+          description
+        }
+      });
+      Promise.all(promises).then((results) => {
+        ctx.reply(`Tracking all packages:
+          ${results.map(formatRowResponse).join("\n")}
+        `);
+      });
+    }
+  });
 });
 
 bot.startWebhook("/TrackingOpenSourceVersionBot", null, port);
