@@ -5,13 +5,11 @@ import { Telegraf } from "telegraf";
 import { formatListResponse, formatRowResponse, getRepoInfo } from "./lib/utils.js";
 import { Package } from "./lib/schemas/package-schema.js";
 import { Following } from "./lib/schemas/following-schema.js";
+import { connectDB } from "./lib/db.js";
 
 dotenv.config();
+await connectDB();
 const port = process.env.PORT || 9999;
-
-const app = express();
-app.use(cors());
-app.use(express.json());
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
@@ -79,3 +77,4 @@ bot.command("tracking", async (ctx) => {
 });
 
 bot.startWebhook("/bot", null, port);
+
