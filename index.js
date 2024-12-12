@@ -62,7 +62,7 @@ bot.command("add", async (ctx) => {
   const hasPackage = await Package.findOne({ name: packageName });
   if (!hasPackage) {
     const { version, description } = await getRepoInfo(packageName);
-    if (version === 'unknown') {
+    if (!version || version === 'unknown') {
       ctx.reply(`Package ${packageName} not found`);
       return;
     }
