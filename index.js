@@ -47,7 +47,7 @@ bot.command("list", async (ctx) => {
   }
 
   ctx.reply(`List of following packages:
-    ${packages.map(formatListResponse).join("\n")}
+    ${formatListResponse(packages)}
   `);
 });
 
