@@ -1,0 +1,12 @@
+name: Tracking Version
+
+on:
+  schedule:
+    - cron: "*/1 * * * *"
+
+jobs:
+  call-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call API
+        run: curl https://telebot-open-source-tracking-version.vercel.app/api/tracking
