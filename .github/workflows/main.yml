@@ -2,12 +2,12 @@ name: Tracking Version
 
 on:
   schedule:
-    - cron: "* * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 jobs:
   call-api:
     runs-on: ubuntu-latest
     steps:
-      - name: Call API
+      - name: tracking version
         run: curl https://telebot-open-source-tracking-version.vercel.app/api/tracking
