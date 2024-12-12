@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { Telegraf } from "telegraf";
-import { formatListResponse, formatRowsResponse, getRepoInfo } from "./lib/utils.js";
+import { formatListResponse, trackingVersion, getRepoInfo } from "./lib/utils.js";
 import { Package } from "./lib/schemas/package-schema.js";
 import { Following } from "./lib/schemas/following-schema.js";
 import { connectDB } from "./lib/db.js";
