@@ -41,6 +41,11 @@ bot.command("list", async (ctx) => {
   const following = await Following.find({ username: ctx.message.from.username });
   const packages = await Package.find({ name: { $in: following.map(item => item.packageName) } });
 
+  if (packages.length === 0) {
+    ctx.reply("You are not following any packages");
+    return;
+  }
+
   ctx.reply(`List of following packages:
     ${packages.map(formatListResponse).join("\n")}
   `);
@@ -49,6 +54,11 @@ bot.command("list", async (ctx) => {
 bot.command("add", async (ctx) => {
   const packageName = ctx.message.text.split(" ")[1];
   await Following.create({ username: ctx.message.from.username, packageName });
+  const pkg = await Package.findOne({ name: packageName });
+  if (!pkg) {
+    const { version, description } = await getRepoInfo(packageName);
+    await Package.create({ name: packageName, version, description });
+  }
   ctx.reply(`Package ${packageName} added to following`);
 });
 
