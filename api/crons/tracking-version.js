@@ -1,9 +1,13 @@
-import { getRepoInfo, formatNewVersionResponse } from "../lib/utils.js";
-import Following from "../lib/schemas/following.js";
-import Package from "../lib/schemas/package.js";
-
+import { Telegraf } from "telegraf";
+import { connectDB } from "../../lib/db.js";
+import Following from "../../lib/schemas/following.js";
+import Package from "../../lib/schemas/package.js";
+import { formatNewVersionResponse, getRepoInfo } from "../../lib/utils.js";
 
 const trackingVersion = async () => {
+  const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+  await connectDB();
+
   const oldPackages = await Package.find({});
   const promises1 = oldPackages.map(async (pkg) => {
     const { version, description } = await getRepoInfo(pkg.name);

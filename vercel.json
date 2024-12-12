@@ -14,7 +14,7 @@
   ],
   "crons": [
     {
-      "path": "/crons/tracking-version.js",
+      "path": "/api/crons/tracking-version",
       "schedule": "0 20 * * *"
     }
   ]

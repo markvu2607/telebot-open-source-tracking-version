@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { Telegraf } from "telegraf";
 import { formatListResponse, getRepoInfo } from "./lib/utils.js";
-import trackingVersion from "./crons/tracking-version.js";
+import trackingVersion from "./api/crons/tracking-version.js";
 import { Package } from "./lib/schemas/package-schema.js";
 import { Following } from "./lib/schemas/following-schema.js";
 import { connectDB } from "./lib/db.js";
