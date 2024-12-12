@@ -1,6 +1,6 @@
 import { getRepoInfo, formatNewVersionResponse } from "../lib/utils.js";
-import Following from "../models/following.js";
-import Package from "../models/package.js";
+import Following from "../lib/schemas/following.js";
+import Package from "../lib/schemas/package.js";
 
 
 const trackingVersion = async () => {
