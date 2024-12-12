@@ -78,4 +78,4 @@ bot.command("tracking", async (ctx) => {
   });
 });
 
-bot.startWebhook("/TrackingOpenSourceVersionBot", null, port);
+bot.startWebhook("/bot", null, port);
